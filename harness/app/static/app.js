@@ -7,7 +7,7 @@
 
   /* ---------- 常量 ---------- */
   var SHORT_TIMEOUT = 15000;    // 状态 / 示例案件
-  var LONG_TIMEOUT = 600000;    // 推理类请求:真实模型可能数分钟,给到 10 分钟
+  var LONG_TIMEOUT = 1500000;   // 推理类请求:与服务端 HARNESS_REQUEST_TIMEOUT=2400s 对齐留余量(Mac/MLX 大材料可达 20 分钟)
   var STATUS_INTERVAL = 30000;  // 状态徽标 30s 轮询
 
   var STATUS_LABEL = {
@@ -151,7 +151,7 @@
     resultEl.innerHTML =
       '<div class="loading-box">' +
         '<div class="spinner"></div>' +
-        '<div class="loading-text">本地推理中,可能需要 1-5 分钟,请耐心等待</div>' +
+        '<div class="loading-text">本地推理中,一般需要 2-5 分钟,材料较多时可能更久,请耐心等待</div>' +
         '<div class="loading-elapsed">已用 <span class="elapsed">0</span> 秒</div>' +
       "</div>";
     var elapsedEl = resultEl.querySelector(".elapsed");
