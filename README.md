@@ -17,7 +17,7 @@
 要求：Python 3.11+、Linux/WSL2、支持当前 vLLM 的 NVIDIA GPU。已验证的组合是 vLLM 0.27.1、MTP3、FP8 基模和三个 FP16 LoRA。
 
 ```bash
-git clone https://github.com/jiafeimao1990/qwen35-r79-legal-reasoning.git
+git clone https://github.com/consciousHALU/qwen35-r79-legal-reasoning.git
 cd qwen35-r79-legal-reasoning
 python -m venv .venv
 source .venv/bin/activate
@@ -91,6 +91,10 @@ curl -s http://127.0.0.1:8088/v1/wiki/similar-case/search \
 
 详细设计见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)，评测结果见 [docs/EVALUATION.md](docs/EVALUATION.md)。
 实际后端兼容记录见 [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)。
+
+## Web 界面(Harness)
+
+`harness/` 是本框架的 Web 壳(行政复议智能助手),把本地推理 API 包装为中文浏览器界面,面向三个场景:案件咨询、证据链梳理(时间轴 + 证据×事件矩阵)、行政复议文书起草(结构化分析 + 确定性模板组装,导出 docx)。它不改、不包装、不代理模型权重,只调用 `127.0.0.1:8088` 的本地 API;另内置演示模式(`HARNESS_MOCK=1`,合成数据,无需 GPU)便于评审与测试。详见 [harness/README.md](harness/README.md)。
 
 ## 数据边界
 

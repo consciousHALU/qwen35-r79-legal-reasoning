@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>行政复议智能助手</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="brand">
+    <h1>行政复议智能助手</h1>
+    <p class="subtitle">基于本地 R79 行政法律推理模型 · 数据不出本机</p>
+  </div>
+  <div class="status-badge st-checking" id="status-badge">
+    <span class="status-dot"></span><span id="status-text">检测中…</span>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="tabs-inner">
+    <button type="button" class="tab-btn active" data-tab="consult">案件咨询</button>
+    <button type="button" class="tab-btn" data-tab="evidence">证据链梳理</button>
+    <button type="button" class="tab-btn" data-tab="draft">文书起草</button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ============ 标签页 ①:案件咨询 ============ -->
+  <section class="tab-panel active" id="panel-consult">
+    <div class="page-layout">
+      <div class="input-col">
+        <div class="card">
+          <h2>咨询问题</h2>
+          <textarea id="consult-question" class="q-textarea"
+            placeholder="请输入要咨询的行政复议问题,例如:本案处罚程序是否合法?复议申请期限从何时起算?"></textarea>
+          <label class="check-line">
+            <input type="checkbox" id="consult-wiki" checked>
+            同时检索类案(只读,不注入推理)
+          </label>
+        </div>
+        <div class="card materials-mount" id="consult-materials"></div>
+        <button type="button" class="btn btn-primary btn-block" id="consult-submit">提交咨询</button>
+      </div>
+      <div class="result-col" id="consult-result">
+        <div class="empty-hint">在左侧录入案件材料与咨询问题,点击「提交咨询」后,结论、分析、主张与类案参考将显示在这里。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 标签页 ②:证据链梳理 ============ -->
+  <section class="tab-panel" id="panel-evidence">
+    <div class="page-layout">
+      <div class="input-col">
+        <div class="card materials-mount" id="ev-materials"></div>
+        <button type="button" class="btn btn-primary btn-block" id="ev-submit">开始梳理</button>
+      </div>
+      <div class="result-col" id="ev-result">
+        <div class="empty-hint">在左侧录入案件材料,点击「开始梳理」后,统计、时间轴、证据矩阵、主体与程序信息将显示在这里。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 标签页 ③:文书起草 ============ -->
+  <section class="tab-panel" id="panel-draft">
+    <div class="page-layout">
+      <div class="input-col">
+        <div class="card">
+          <h2>可选信息</h2>
+          <div class="form-row">
+            <label for="ov-applicant">申请人姓名</label>
+            <input type="text" id="ov-applicant" placeholder="留空则由模型分析推导">
+          </div>
+          <div class="form-row">
+            <label for="ov-organ">复议机关</label>
+            <input type="text" id="ov-organ" placeholder="留空则由模型分析推导">
+          </div>
+          <div class="form-row">
+            <label for="ov-claims">复议请求</label>
+            <input type="text" id="ov-claims" placeholder="留空则由模型分析推导">
+          </div>
+          <div class="form-row">
+            <label for="ov-third">第三人</label>
+            <input type="text" id="ov-third" placeholder="留空则由模型分析推导">
+          </div>
+        </div>
+        <div class="card materials-mount" id="draft-materials"></div>
+        <button type="button" class="btn btn-primary btn-block" id="draft-submit">生成文书</button>
+      </div>
+      <div class="result-col" id="draft-result">
+        <div class="empty-hint">在左侧录入案件材料(可选填申请人等信息),点击「生成文书」后,行政复议申请书草稿与下载操作将显示在这里。</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="app-footer">研究预览 · 输出须由专业人员复核 · 所有数据仅在本地处理</footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
