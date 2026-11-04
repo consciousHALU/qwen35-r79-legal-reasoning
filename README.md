@@ -72,6 +72,34 @@ curl -s http://127.0.0.1:8088/v1/wiki/similar-case/search \
   -d '{"query":"送达日期不明时如何审查期限"}'
 ```
 
+## Mac 本地适配（无 NVIDIA GPU）
+
+在 Apple Silicon 上可用 [vllm-metal](https://github.com/waybarrios/vllm-metal)（MLX 后端）跑通完整推理链路。此时不加载 LoRA 适配器，三个路由名经 `--served-model-name` 别名指向同一 MLX 基模，**用于验证流程与演示交互，输出为未微调基模水平**；参评性能指标仍以 FP8 + 三适配器的 NVIDIA 整栈为准。
+
+```bash
+# 终端 1:vllm-metal 以四个别名服务同一基模
+vllm serve --model <mlx-模型路径> \
+  --served-model-name qwen3.5-9b facts_1949 procedure_1978 candidate_r79 \
+  --max-model-len 32768 --mamba-ssm-cache-dtype float32 \
+  --reasoning-parser qwen3 \
+  --default-chat-template-kwargs '{"enable_thinking": false}' \
+  --host 127.0.0.1 --port 8000
+
+# 终端 2:R79 API + Harness(一条命令)
+bash scripts/start_local_mac.sh
+```
+
+Mac 适配由环境变量完成，不改变默认（NVIDIA）行为：
+
+| 变量 | Mac 值 | 默认 | 原因 |
+| --- | --- | --- | --- |
+| `R79_DRAFT_THINKING` | `0` | `1` | 未加载适配器的基模思考通道不收敛，草稿会耗尽 token 预算（finish_reason=length)；关闭后模型直接输出核验清单 |
+| `R79_MAX_MODEL_LEN` | `32768` | 取 `routes.json`(16384) | 与本地 vllm-metal 实际上下文对齐，预检预算按真实上限计算 |
+| `R79_REASONING_BUDGET` / `R79_FINAL_BUDGET` | `8192` / `6144` | `8192` / `8192` | 按 MLX 吞吐（约 40 tok/s）控制单阶段时延 |
+| `HARNESS_REQUEST_TIMEOUT` | `2400` | `660` | Mac 上完整三阶段工作流约 2-6 分钟，harness 等待放宽 |
+
+另外，`client.py` 兼容 vllm-metal 将思考内容放在 `reasoning` 字段（标准 vLLM 为 `reasoning_content`）的差异；两种字段名都被接受。
+
 ## 推理流程
 
 ```text
@@ -124,4 +152,3 @@ python scripts/build_public_graph.py \
 ## 许可证
 
 代码与随仓抽象图谱按 Apache-2.0 发布。模型仓库沿用 Qwen3.5 的 Apache-2.0 许可与模型卡限制。你导入的 Wiki 语料仍受其各自来源、隐私和再分发条件约束。
-

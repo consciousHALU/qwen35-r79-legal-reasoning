@@ -63,6 +63,16 @@ if not 1 <= _GLOBAL_CONCURRENCY <= 8:
     raise ValueError("R79_MAX_CONCURRENT_BACKEND must be between 1 and 8")
 _GLOBAL_BACKEND_GATE = threading.BoundedSemaphore(_GLOBAL_CONCURRENCY)
 
+# Mac 适配:未加载 LoRA 适配器的基模在 enable_thinking=true 时思考不收敛,
+# 草稿会耗尽 token 预算(finish_reason=length)。R79_DRAFT_THINKING=0 时草稿阶段
+# 关闭思考通道,让模型直接输出核验清单;原 NVIDIA+适配器环境保持默认开启。
+_DRAFT_THINKING = os.environ.get("R79_DRAFT_THINKING", "1").lower() not in {
+    "0",
+    "false",
+    "no",
+    "off",
+}
+
 
 @dataclass
 class StageResult:
@@ -273,7 +283,9 @@ class OpenAIChatClient:
             message = value["choices"][0]["message"]
             finish_reason = value["choices"][0].get("finish_reason")
             content = message.get("content") or ""
-            reasoning = message.get("reasoning_content") or ""
+            # Mac 适配:vllm-metal 将思考内容放在 "reasoning" 字段,
+            # 标准 vLLM(NVIDIA)为 "reasoning_content",两者都接受。
+            reasoning = message.get("reasoning_content") or message.get("reasoning") or ""
             record.update(
                 {
                     "finish_reason": finish_reason,
@@ -326,7 +338,7 @@ class OpenAIChatClient:
         self._preflight(
             adapter=adapter,
             messages=draft_messages,
-            enable_thinking=True,
+            enable_thinking=_DRAFT_THINKING,
             reserved_output_tokens=reasoning_budget,
             workflow_id=workflow_id,
             label=f"{label}.draft.preflight",
@@ -339,7 +351,7 @@ class OpenAIChatClient:
             "top_p": 1,
             "repetition_penalty": 1.05,
             "max_tokens": reasoning_budget,
-            "chat_template_kwargs": {"enable_thinking": True},
+            "chat_template_kwargs": {"enable_thinking": _DRAFT_THINKING},
         }
         draft = self._request(draft_body, workflow_id, f"{label}.draft")
         full_draft = "\n".join(x for x in (draft.reasoning_content, draft.content) if x).strip()

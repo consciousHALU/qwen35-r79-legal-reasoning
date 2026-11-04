@@ -91,7 +91,13 @@ class Settings:
             os.environ.get("R79_FINAL_BUDGET", str(ROUTE_CONFIG["reasoning"]["final_budget"]))
         )
     )
-    max_model_len: int = int(ROUTE_CONFIG["backend"]["max_model_len"])
+    max_model_len: int = field(
+        default_factory=lambda: int(
+            # Mac 适配:可用 R79_MAX_MODEL_LEN 覆盖(本地 vllm-metal 跑 32768),
+            # 默认仍取 routes.json(NVIDIA 验证环境为 16384)。
+            os.environ.get("R79_MAX_MODEL_LEN", str(ROUTE_CONFIG["backend"]["max_model_len"]))
+        )
+    )
 
     facts_adapter: str = ROUTE_CONFIG["routes"]["fact_extraction"]
     procedure_adapter: str = ROUTE_CONFIG["routes"]["procedure_timeline"]
