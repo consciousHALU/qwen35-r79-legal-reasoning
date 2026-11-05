@@ -61,15 +61,15 @@
 
 ```mermaid
 flowchart TD
-    A[完整用户请求 + 全部原始材料] --> B[facts_1949<br/>主体/事件/日期/证据状态]
-    A --> C[procedure_1978<br/>行为作出者/步骤/期限]
-    D[(本地知识图谱<br/>SQLite FTS 确定性检索<br/>不调用模型)] --> E
-    B --> E[candidate_r79<br/>法律适用 + 最终回答]
+    A["完整用户请求 + 全部原始材料"] --> B["facts_1949<br/>主体/事件/日期/证据状态"]
+    A --> C["procedure_1978<br/>行为作出者/步骤/期限"]
+    D[("本地知识图谱<br/>SQLite FTS 确定性检索<br/>不调用模型")] --> E
+    B --> E["candidate_r79<br/>法律适用 + 最终回答"]
     C --> E
-    E --> F[结论 / 分析 / 主张引用 / 局限]
+    E --> F["结论 / 分析 / 主张引用 / 局限"]
 
-    subgraph 每个语义阶段内部
-      G[① 私有核验草稿<br/>thinking 开启] --> H[② 严格 JSON 定稿<br/>temperature=0 + Schema 约束]
+    subgraph stage["每个语义阶段内部"]
+      G["① 私有核验草稿<br/>thinking 开启"] --> H["② 严格 JSON 定稿<br/>temperature=0 + Schema 约束"]
     end
 ```
 
@@ -129,12 +129,12 @@ HARNESS_MOCK=1 ./run.sh
 
 ```mermaid
 flowchart LR
-    subgraph 本机（全部 127.0.0.1 回环，数据不出机）
-      A[浏览器<br/>原生 HTML/JS<br/>无 CDN 无外网] <-->|HTTP| B[Harness :8090<br/>FastAPI + 静态页<br/>三场景代理]
-      B <-->|HTTP| C[R79 推理 API :8088<br/>角色路由 / 预算预检<br/>图谱检索 / 审计落盘]
-      C <-->|HTTP| D[vLLM :8000<br/>Qwen3.5-9B FP8<br/>+ 3 × LoRA FP16]
-      C -.->|本地 FTS| E[(图谱 SQLite)]
-      C -.->|独立端点| F[(类案 Wiki SQLite)]
+    subgraph local["本机(全部 127.0.0.1 回环,数据不出机)"]
+      A["浏览器<br/>原生 HTML/JS<br/>无 CDN 无外网"] <-->|HTTP| B["Harness :8090<br/>FastAPI + 静态页<br/>三场景代理"]
+      B <-->|HTTP| C["R79 推理 API :8088<br/>角色路由 / 预算预检<br/>图谱检索 / 审计落盘"]
+      C <-->|HTTP| D["vLLM :8000<br/>Qwen3.5-9B FP8<br/>+ 3 × LoRA FP16"]
+      C -.->|本地 FTS| E[("图谱 SQLite")]
+      C -.->|独立端点| F[("类案 Wiki SQLite")]
     end
 ```
 
